@@ -28,3 +28,9 @@ export const schemaListe = z.object({
   limite: z.coerce.number().int().min(1).max(100).default(10),
   categorie: z.enum(CATEGORIES).optional(),
 });
+
+// Exercice 3 — un avis
+export const schemaAvis = z.object({
+  note: z.number().int("La note doit être un entier").min(1).max(5),
+  commentaire: z.string().trim().max(500, "500 caractères au plus").optional(),
+});

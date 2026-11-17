@@ -1,10 +1,12 @@
 import express from "express";
 import { valider } from "../middlewares/valider.js";
-import { schemaCreation, schemaListe, schemaModification } from "../schemas.js";
+import { schemaAvis, schemaCreation, schemaListe, schemaModification } from "../schemas.js";
 
 // Stockage en mémoire (perdu au redémarrage)
 const produits = new Map();
+const avisParProduit = new Map(); // id produit → tableau d'avis
 let prochainId = 1;
+let prochainIdAvis = 1;
 
 function ajouter(donnees) {
   const produit = { id: prochainId++, ...donnees };
@@ -61,7 +63,20 @@ export function creerRouteurProduits() {
       });
     }
     produits.delete(req.produit.id);
+    avisParProduit.delete(req.produit.id);
     res.status(204).end();
+  });
+
+  // Exercice 3 : sous-ressource /api/produits/:id/avis
+  router.get("/:id/avis", (req, res) => {
+    res.json(avisParProduit.get(req.produit.id) ?? []);
+  });
+
+  router.post("/:id/avis", valider(schemaAvis), (req, res) => {
+    const avis = { id: prochainIdAvis++, produitId: req.produit.id, ...req.valide.body };
+    if (!avisParProduit.has(req.produit.id)) avisParProduit.set(req.produit.id, []);
+    avisParProduit.get(req.produit.id).push(avis);
+    res.status(201).json(avis);
   });
 
   return router;
