@@ -2,6 +2,7 @@ import express from "express";
 import { valider } from "../middlewares/valider.js";
 import { proteger } from "../middlewares/cleApi.js";
 import { schemaAvis, schemaCreation, schemaListe, schemaModification } from "../schemas.js";
+import { upload } from "../upload.js";
 
 // Stockage en mémoire (perdu au redémarrage)
 const produits = new Map();
@@ -84,6 +85,14 @@ export function creerRouteurProduits({ protegerEcritures = false } = {}) {
     if (!avisParProduit.has(req.produit.id)) avisParProduit.set(req.produit.id, []);
     avisParProduit.get(req.produit.id).push(avis);
     res.status(201).json(avis);
+  });
+
+  // Exercice 5 : image du produit (champ multipart « image »)
+  router.post("/:id/image", upload.single("image"), (req, res) => {
+    if (!req.file) return res.status(400).json({ erreur: "Fichier manquant (champ « image »)" });
+    const url = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
+    req.produit.image = url;
+    res.status(201).json({ url, produit: req.produit });
   });
 
   return router;
