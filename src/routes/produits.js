@@ -1,5 +1,6 @@
 import express from "express";
 import { valider } from "../middlewares/valider.js";
+import { proteger } from "../middlewares/cleApi.js";
 import { schemaAvis, schemaCreation, schemaListe, schemaModification } from "../schemas.js";
 
 // Stockage en mémoire (perdu au redémarrage)
@@ -19,8 +20,14 @@ ajouter({ nom: "Le Petit Prince", prix: 8.9, stock: 12, categorie: "livre" });
 ajouter({ nom: "Carcassonne", prix: 29.99, stock: 0, categorie: "jeu" });
 ajouter({ nom: "Kind of Blue", prix: 15.5, stock: 3, categorie: "musique" });
 
-export function creerRouteurProduits() {
+/**
+ * @param {{ protegerEcritures?: boolean }} options
+ *   protegerEcritures : exige X-Api-Key sur POST, PATCH et DELETE (exercice 4)
+ */
+export function creerRouteurProduits({ protegerEcritures = false } = {}) {
   const router = express.Router();
+
+  if (protegerEcritures) router.use(proteger);
 
   // Exercice 3 : router.param charge le produit UNE fois pour toutes les routes avec :id
   router.param("id", (req, res, next, id) => {
