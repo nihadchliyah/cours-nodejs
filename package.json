@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "start:protege": "node src/index-protege.js"
+    "start:protege": "node src/index-protege.js",
+    "demo:concurrence": "node scripts/ecritures-simultanees.js"
   },
   "keywords": [],
   "author": "",
