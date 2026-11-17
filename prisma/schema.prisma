@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Utilisateur {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  nom           String
+  tachesEnCours Int      @default(0)
+  taches        Tache[]
+  creeLe        DateTime @default(now())
+}
+
+model Tache {
+  id             Int         @id @default(autoincrement())
+  titre          String      @db.VarChar(150)
+  faite          Boolean     @default(false)
+  proprietaire   Utilisateur @relation(fields: [proprietaireId], references: [id], onDelete: Cascade)
+  proprietaireId Int
+  creeLe         DateTime    @default(now())
+
+  @@unique([titre, proprietaireId])
+  @@index([faite])
+}
