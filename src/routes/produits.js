@@ -3,23 +3,12 @@ import { valider } from "../middlewares/valider.js";
 import { proteger } from "../middlewares/cleApi.js";
 import { schemaAvis, schemaCreation, schemaListe, schemaModification } from "../schemas.js";
 import { upload } from "../upload.js";
+import * as depot from "../depots/produits.depot.js";
 
-// Stockage en mémoire (perdu au redémarrage)
-const produits = new Map();
+// Les produits sont dans data/produits.json (voir src/depots/produits.depot.js) ;
+// les avis restent en mémoire.
 const avisParProduit = new Map(); // id produit → tableau d'avis
-let prochainId = 1;
 let prochainIdAvis = 1;
-
-function ajouter(donnees) {
-  const produit = { id: prochainId++, ...donnees };
-  produits.set(produit.id, produit);
-  return produit;
-}
-
-// Quelques produits de départ
-ajouter({ nom: "Le Petit Prince", prix: 8.9, stock: 12, categorie: "livre" });
-ajouter({ nom: "Carcassonne", prix: 29.99, stock: 0, categorie: "jeu" });
-ajouter({ nom: "Kind of Blue", prix: 15.5, stock: 3, categorie: "musique" });
 
 /**
  * @param {{ protegerEcritures?: boolean }} options
@@ -31,17 +20,17 @@ export function creerRouteurProduits({ protegerEcritures = false } = {}) {
   if (protegerEcritures) router.use(proteger);
 
   // Exercice 3 : router.param charge le produit UNE fois pour toutes les routes avec :id
-  router.param("id", (req, res, next, id) => {
-    const produit = produits.get(Number(id));
+  router.param("id", async (req, res, next, id) => {
+    const produit = await depot.trouver(Number(id));
     if (!produit) return res.status(404).json({ erreur: `Produit ${id} introuvable` });
     req.produit = produit;
     next();
   });
 
   // Liste : pagination + filtre ?categorie=
-  router.get("/", valider(schemaListe, "query"), (req, res) => {
+  router.get("/", valider(schemaListe, "query"), async (req, res) => {
     const { page, limite, categorie } = req.valide.query;
-    const tous = [...produits.values()].filter((p) => !categorie || p.categorie === categorie);
+    const tous = (await depot.lister()).filter((p) => !categorie || p.categorie === categorie);
     const debut = (page - 1) * limite;
     res.json({
       donnees: tous.slice(debut, debut + limite),
@@ -54,23 +43,23 @@ export function creerRouteurProduits({ protegerEcritures = false } = {}) {
 
   router.get("/:id", (req, res) => res.json(req.produit));
 
-  router.post("/", valider(schemaCreation), (req, res) => {
-    const produit = ajouter(req.valide.body);
+  router.post("/", valider(schemaCreation), async (req, res) => {
+    const produit = await depot.ajouter(req.valide.body);
     res.status(201).location(`${req.baseUrl}/${produit.id}`).json(produit);
   });
 
-  router.patch("/:id", valider(schemaModification), (req, res) => {
-    Object.assign(req.produit, req.valide.body);
-    res.json(req.produit);
+  router.patch("/:id", valider(schemaModification), async (req, res) => {
+    const produit = await depot.modifier(req.produit.id, req.valide.body);
+    res.json(produit);
   });
 
-  router.delete("/:id", (req, res) => {
+  router.delete("/:id", async (req, res) => {
     if (req.produit.stock !== 0) {
       return res.status(409).json({
         erreur: `Suppression impossible : il reste ${req.produit.stock} article(s) en stock`,
       });
     }
-    produits.delete(req.produit.id);
+    await depot.supprimer(req.produit.id);
     avisParProduit.delete(req.produit.id);
     res.status(204).end();
   });
@@ -88,11 +77,11 @@ export function creerRouteurProduits({ protegerEcritures = false } = {}) {
   });
 
   // Exercice 5 : image du produit (champ multipart « image »)
-  router.post("/:id/image", upload.single("image"), (req, res) => {
+  router.post("/:id/image", upload.single("image"), async (req, res) => {
     if (!req.file) return res.status(400).json({ erreur: "Fichier manquant (champ « image »)" });
     const url = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`;
-    req.produit.image = url;
-    res.status(201).json({ url, produit: req.produit });
+    const produit = await depot.modifier(req.produit.id, { image: url });
+    res.status(201).json({ url, produit });
   });
 
   return router;
