@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Utilisateur {
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  nom        String
+  motDePasse String
+  emprunts   Emprunt[]
+  creeLe     DateTime  @default(now())
+}
+
+model Ouvrage {
+  id         Int       @id @default(autoincrement())
+  titre      String    @db.VarChar(150)
+  auteur     String
+  disponible Boolean   @default(true)
+  emprunts   Emprunt[]
+}
+
+model Emprunt {
+  id            Int         @id @default(autoincrement())
+  ouvrage       Ouvrage     @relation(fields: [ouvrageId], references: [id], onDelete: Restrict)
+  ouvrageId     Int
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  utilisateurId Int
+  empruntLe     DateTime    @default(now())
+  retourPrevuLe DateTime
+  rendu         Boolean     @default(false)
+
+  @@index([utilisateurId, rendu])
+}
