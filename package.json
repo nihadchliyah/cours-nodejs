@@ -1,0 +1,9 @@
+{
+  "name": "exercices-node-5",
+  "version": "1.0.0",
+  "description": "Exercices 5 : streams, workers, cluster et TypeScript",
+  "type": "module",
+  "scripts": {
+    "filtrer": "node src/filtrer.js"
+  }
+}
