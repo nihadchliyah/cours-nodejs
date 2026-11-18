@@ -4,6 +4,17 @@
   "description": "Exercices 5 : streams, workers, cluster et TypeScript",
   "type": "module",
   "scripts": {
-    "filtrer": "node src/filtrer.js"
+    "filtrer": "node src/filtrer.js",
+    "typecheck": "tsc",
+    "postinstall": "prisma generate"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "prisma": "^7.10.1",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.10.1"
   }
 }

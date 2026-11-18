@@ -1,0 +1,15 @@
+generator client {
+  provider = "prisma-client"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Tache {
+  id       Int       @id @default(autoincrement())
+  titre    String
+  faite    Boolean   @default(false)
+  echeance DateTime?
+}
