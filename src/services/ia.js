@@ -14,16 +14,13 @@ export async function repondre(question) {
   return { texte: reponse.output_text, jetons: reponse.usage };
 }
 
-export async function* repondreEnFlux(question) {
-  const flux = await client.responses.create({
-    model: modele,
-    instructions: INSTRUCTIONS,
-    input: question,
-    stream: true,
-    max_output_tokens: 300,
-  });
+export async function* repondreEnFlux(question, { signal, surJetons } = {}) {
+  const flux = await client.responses.create(
+    { model: modele, instructions: INSTRUCTIONS, input: question, stream: true, max_output_tokens: 300 },
+    { signal },
+  );
   for await (const evenement of flux) {
     if (evenement.type === "response.output_text.delta") yield evenement.delta;
-    if (evenement.type === "response.completed") console.log("jetons", evenement.response.usage);
+    if (evenement.type === "response.completed") surJetons?.(evenement.response.usage);
   }
 }

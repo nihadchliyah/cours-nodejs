@@ -33,3 +33,38 @@ routeurAssistant.post("/", ...garde, async (req, res) => {
   console.log(`assistant ${req.utilisateur.sub} ${jetons.input_tokens}+${jetons.output_tokens} jetons`);
   res.json({ reponse: texte });
 });
+
+routeurAssistant.post("/flux", ...garde, async (req, res) => {
+  res.set({ "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" });
+  res.flushHeaders();
+
+  const annulation = new AbortController();
+  res.on("close", () => {
+    if (!res.writableEnded) annulation.abort();
+  });
+
+  let mots = 0;
+  let jetons;
+  try {
+    const flux = ia.repondreEnFlux(req.valide.question, {
+      signal: annulation.signal,
+      surJetons: (j) => (jetons = j),
+    });
+    for await (const morceau of flux) {
+      if (annulation.signal.aborted) break;
+      res.write(`data: ${JSON.stringify({ delta: morceau })}\n\n`);
+      mots++;
+    }
+    if (!annulation.signal.aborted) res.write("event: fin\ndata: {}\n\n");
+  } catch (err) {
+    if (!annulation.signal.aborted) {
+      console.error("IA :", err.message);
+      res.write(`event: erreur\ndata: ${JSON.stringify({ message: "Service indisponible" })}\n\n`);
+    }
+  } finally {
+    if (annulation.signal.aborted) console.log(`flux interrompu par le client (${mots} mots émis)`);
+    else console.log(`flux terminé (${mots} mots émis)`);
+    if (jetons) await consommation.enregistrer(req.utilisateur.sub, jetons);
+    res.end();
+  }
+});
