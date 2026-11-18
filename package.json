@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "start:cluster": "node src/cluster.js"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.1",
