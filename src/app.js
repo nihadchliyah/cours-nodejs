@@ -1,4 +1,5 @@
 import express from "express";
+import { routeurAssistant } from "./routes/assistant.js";
 import { routeurAuth } from "./routes/auth.js";
 
 export const app = express();
@@ -7,6 +8,7 @@ app.use(express.json());
 
 app.get("/sante", (req, res) => res.json({ statut: "ok" }));
 app.use("/api/auth", routeurAuth);
+app.use("/api/assistant", routeurAssistant);
 
 app.use((req, res) => {
   res.status(404).json({ erreur: "Route introuvable" });
