@@ -1,3 +1,5 @@
+import { outilsPour } from "./outils.js";
+
 const estimerJetons = (texte) => Math.ceil(texte.length / 4);
 const attendre = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -26,4 +28,20 @@ export async function* repondreEnFlux(question, { signal, surJetons } = {}) {
     const texte = mots.slice(0, emis).join(" ");
     surJetons?.({ input_tokens: estimerJetons(question), output_tokens: estimerJetons(texte) });
   }
+}
+
+export async function repondreAvecOutils(question, { utilisateurId }) {
+  if (!/rendre|emprunt/i.test(question)) return repondre(question);
+
+  const emprunts = await outilsPour(utilisateurId).mes_emprunts();
+  const dansSeptJours = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+  const aRendre = emprunts.filter((e) => e.retourPrevuLe <= dansSeptJours);
+
+  const texte =
+    aRendre.length === 0
+      ? "[bouchon] Vous n'avez rien à rendre cette semaine."
+      : `[bouchon] À rendre cette semaine : ${aRendre
+          .map((e) => `« ${e.titre} » (${e.auteur}) avant le ${e.retourPrevuLe}`)
+          .join(", ")}.`;
+  return { texte, jetons: { input_tokens: estimerJetons(question), output_tokens: estimerJetons(texte) } };
 }

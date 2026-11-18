@@ -23,7 +23,7 @@ const garde = [authentifier, limiteParMinute, quotaIa(QUOTA_JETONS_JOUR), valide
 routeurAssistant.post("/", ...garde, async (req, res) => {
   let resultat;
   try {
-    resultat = await ia.repondre(req.valide.question);
+    resultat = await ia.repondreAvecOutils(req.valide.question, { utilisateurId: req.utilisateur.sub });
   } catch (err) {
     console.error("IA :", err.message);
     return res.status(503).json({ erreur: "Assistant indisponible pour le moment" });
