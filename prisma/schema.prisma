@@ -12,7 +12,8 @@ model Utilisateur {
   email      String    @unique
   nom        String
   motDePasse String
-  emprunts   Emprunt[]
+  emprunts      Emprunt[]
+  consommations ConsommationIa[]
   creeLe     DateTime  @default(now())
 }
 
@@ -35,4 +36,16 @@ model Emprunt {
   rendu         Boolean     @default(false)
 
   @@index([utilisateurId, rendu])
+}
+
+model ConsommationIa {
+  id            Int         @id @default(autoincrement())
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  utilisateurId Int
+  date          DateTime    @default(now())
+  jetonsEntree  Int
+  jetonsSortie  Int
+
+  @@index([utilisateurId, date])
+  @@map("consommation_ia")
 }

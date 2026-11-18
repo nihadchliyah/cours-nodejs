@@ -1,8 +1,8 @@
+const estimerJetons = (texte) => Math.ceil(texte.length / 4);
+
 export async function repondre(question) {
-  return {
-    texte: `[bouchon] Vous avez demandé : ${question.slice(0, 60)}`,
-    jetons: { input_tokens: 0, output_tokens: 0 },
-  };
+  const texte = `[bouchon] Vous avez demandé : ${question.slice(0, 60)}`;
+  return { texte, jetons: { input_tokens: estimerJetons(question), output_tokens: estimerJetons(texte) } };
 }
 
 export async function* repondreEnFlux(question) {
