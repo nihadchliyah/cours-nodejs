@@ -19,3 +19,17 @@ export async function lister({ page = 1, limite = 10, faite, q } = {}) {
 
   return { donnees, page, limite, total, pages: Math.ceil(total / limite) };
 }
+
+export async function* parLots(taille = 500) {
+  let dernierId = 0;
+  while (true) {
+    const lot = await prisma.tache.findMany({
+      where: { id: { gt: dernierId } },
+      orderBy: { id: "asc" },
+      take: taille,
+    });
+    if (lot.length === 0) return;
+    yield lot;
+    dernierId = lot[lot.length - 1].id;
+  }
+}

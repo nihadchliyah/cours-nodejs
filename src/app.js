@@ -13,5 +13,6 @@ app.use((req, res) => {
 // Express 5 transmet ici les erreurs des handlers async
 app.use((err, req, res, next) => {
   console.error(err);
+  if (res.headersSent) return next(err);
   res.status(500).json({ erreur: "Erreur interne du serveur" });
 });
