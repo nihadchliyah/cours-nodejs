@@ -1,4 +1,5 @@
 import express from "express";
+import { routeurAuth } from "./routes/auth.js";
 import { routeurTaches } from "./routes/taches.js";
 
 export const app = express();
@@ -9,6 +10,7 @@ app.get("/sante", (req, res) => {
   res.json({ statut: "ok", pid: process.pid, uptime: Math.round(process.uptime()) });
 });
 
+app.use("/api/auth", routeurAuth);
 app.use("/api/taches", routeurTaches);
 
 app.use((req, res) => {

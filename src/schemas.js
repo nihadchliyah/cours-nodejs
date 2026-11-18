@@ -10,3 +10,9 @@ export const listeQuery = z.object({
     .optional(),
   q: z.string().trim().optional(),
 });
+
+export const schemaInscription = z.object({
+  email: z.email(),
+  nom: z.string().trim().min(2),
+  motDePasse: z.string().min(8),
+});
