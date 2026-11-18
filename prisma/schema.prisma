@@ -11,6 +11,7 @@ model Utilisateur {
   id            Int      @id @default(autoincrement())
   email         String   @unique
   nom           String
+  motDePasse    String?
   tachesEnCours Int      @default(0)
   taches        Tache[]
   creeLe        DateTime @default(now())
