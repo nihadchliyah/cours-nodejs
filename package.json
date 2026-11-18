@@ -1,0 +1,10 @@
+{
+  "name": "exercices-node-6",
+  "version": "1.0.0",
+  "description": "Exercices 6 : assistant IA de la médiathèque (OpenAI ou bouchon)",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch src/index.js",
+    "start": "node src/index.js"
+  }
+}
