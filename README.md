@@ -8,7 +8,8 @@ Exercices du module Node.js d'IT-Akademy. Chaque série est sur sa propre branch
 | [`api-taches`](../../tree/api-taches) | API de tâches avec Express, Prisma et PostgreSQL : Exercices 3 (pagination) et Exercices 5 (export CSV en streaming, bcrypt dans un worker, cluster) |
 | [`exercices-5`](../../tree/exercices-5) | Exercices 5 : filtre CSV en stream, TypeScript strict |
 | [`exercices-6`](../../tree/exercices-6) | Exercices 6 : assistant IA (OpenAI ou bouchon), quota de jetons, SSE, outil `mes_emprunts` |
-| [`projet-mediatheque`](../../tree/projet-mediatheque) | Projet final : plan des routes |
+
+Le projet final (API de la médiathèque en TypeScript, avec les TP 1 et 2) est dans son propre dépôt : [nihadchliyah/mediatheque-api](https://github.com/nihadchliyah/mediatheque-api).
 
 Récupérer une série :
 
